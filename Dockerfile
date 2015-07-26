@@ -1,107 +1,19 @@
-# Dockerfile for ELK stack
-# Elasticsearch 1.7.0, Logstash 1.5.2, Kibana 4.1.1
+FROM sebp/elk
 
-# Build with:
-# docker build -t <repo-user>/elk .
+MAINTAINER Dmitrii Zolotov <dzolotov@herzen.spb.ru>
 
-# Run with:
-# docker run -p 5601:5601 -p 9200:9200 -p 5000:5000 -it --name elk <repo-user>/elk
+ENV DEBIAN_FRONTEND noninteractive
 
-FROM phusion/baseimage
-MAINTAINER Sebastien Pujadas http://pujadas.net
-ENV REFRESHED_AT 2015-07-17
+ADD locale.gen /etc/
 
-###############################################################################
-#                                INSTALLATION
-###############################################################################
+RUN apt-get update && apt-get install -y console-cyrillic locales tzdata && \
+    echo 'Europe/Moscow' >/etc/timezone && dpkg-reconfigure tzdata && \
+    export LANGUAGE=ru_RU.UTF-8 && export LANG=ru_RU.UTF-8 && export LC_ALL=ru_RU.UTF-8 && dpkg-reconfigure locales && \
+    sed 's/# ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/ig' -i /etc/locale.gen && locale-gen && update-locale && \
+    apt-get clean && \
+    echo "LC_ALL=ru_RU.UTF-8" >>/etc/bash.bashrc
 
-### install Elasticsearch
+ADD ./*.pattern ${LOGSTASH_HOME}/patterns/
 
-RUN apt-get update -qq \
- && apt-get install -qqy curl
-
-RUN curl http://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add -
-RUN echo deb http://packages.elasticsearch.org/elasticsearch/1.7/debian stable main > /etc/apt/sources.list.d/elasticsearch.list
-
-RUN apt-get update -qq \
- && apt-get install -qqy \
-		elasticsearch \
-		openjdk-7-jdk \
- && apt-get clean
-
-
-### install Logstash
-
-ENV LOGSTASH_HOME /opt/logstash
-ENV LOGSTASH_PACKAGE logstash-1.5.2.tar.gz
-
-RUN mkdir ${LOGSTASH_HOME} \
- && curl -O https://download.elasticsearch.org/logstash/logstash/${LOGSTASH_PACKAGE} \
- && tar xzf ${LOGSTASH_PACKAGE} -C ${LOGSTASH_HOME} --strip-components=1 \
- && rm -f ${LOGSTASH_PACKAGE} \
- && groupadd -r logstash \
- && useradd -r -s /usr/sbin/nologin -d ${LOGSTASH_HOME} -c "Logstash service user" -g logstash logstash \
- && chown -R logstash:logstash ${LOGSTASH_HOME} \
- && mkdir -p /var/log/logstash /etc/logstash/conf.d
-
-ADD ./logstash-init /etc/init.d/logstash
-RUN sed -i -e 's#^LS_HOME=$#LS_HOME='$LOGSTASH_HOME'#' /etc/init.d/logstash \
- && chmod +x /etc/init.d/logstash
-
-
-### install Kibana
-
-ENV KIBANA_HOME /opt/kibana
-ENV KIBANA_PACKAGE kibana-4.1.1-linux-x64.tar.gz
-
-RUN mkdir ${KIBANA_HOME} \
- && curl -O https://download.elasticsearch.org/kibana/kibana/${KIBANA_PACKAGE} \
- && tar xzf ${KIBANA_PACKAGE} -C ${KIBANA_HOME} --strip-components=1 \
- && rm -f ${KIBANA_PACKAGE} \
- && groupadd -r kibana \
- && useradd -r -s /usr/sbin/nologin -d ${KIBANA_HOME} -c "Kibana service user" -g kibana kibana \
- && chown -R kibana:kibana ${KIBANA_HOME}
-
-ADD ./kibana-init /etc/init.d/kibana
-RUN sed -i -e 's#^KIBANA_HOME=$#KIBANA_HOME='$KIBANA_HOME'#' /etc/init.d/kibana \
- && chmod +x /etc/init.d/kibana
-
-
-###############################################################################
-#                               CONFIGURATION
-###############################################################################
-
-### configure Elasticsearch
-
-ADD ./elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
-
-
-### configure Logstash
-
-# cert/key
-RUN mkdir -p /etc/pki/tls/certs && mkdir /etc/pki/tls/private
-ADD ./logstash-forwarder.crt /etc/pki/tls/certs/logstash-forwarder.crt
-ADD ./logstash-forwarder.key /etc/pki/tls/private/logstash-forwarder.key
-
-# filters
-ADD ./01-lumberjack-input.conf /etc/logstash/conf.d/01-lumberjack-input.conf
-ADD ./10-syslog.conf /etc/logstash/conf.d/10-syslog.conf
 ADD ./11-nginx.conf /etc/logstash/conf.d/11-nginx.conf
-ADD ./30-lumberjack-output.conf /etc/logstash/conf.d/30-lumberjack-output.conf
 
-# patterns
-ADD ./nginx.pattern ${LOGSTASH_HOME}/patterns/nginx
-RUN chown -R logstash:logstash ${LOGSTASH_HOME}/patterns
-
-
-###############################################################################
-#                                   START
-###############################################################################
-
-ADD ./start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-EXPOSE 5601 9200 9300 5000
-VOLUME /var/lib/elasticsearch
-
-CMD [ "/usr/local/bin/start.sh" ]
