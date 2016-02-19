@@ -13,4 +13,3 @@ ADD ./elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
 ADD ./*.pattern ${LOGSTASH_HOME}/patterns/
 
 ADD ./11-nginx.conf /etc/logstash/conf.d/11-nginx.conf
-

@@ -387,4 +387,5 @@ http.cors.enabled: true
 http.cors.allow-origin: http://localhost:5601
 
 #fix for rejected execution (queue capacity 1000) on org.elasticsearch.search.action.SearchServiceTransportAction
-threadpool.search.type: cached
+#threadpool.search.type: cached
+threadpool.search.queue_size: 2000
