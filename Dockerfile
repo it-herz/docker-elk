@@ -8,8 +8,13 @@ RUN apt-get install -y tzdata && \
     apt-get clean && \
     echo 'Europe/Moscow' >/etc/timezone && dpkg-reconfigure tzdata
 
+RUN cd /etc/logstash && sudo curl -O "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz" && gunzip GeoLiteCity.dat.gz
+
+ADD elasticsearch-template.json /etc/logstash/templates/elasticsearch-template.json
+
 ADD ./elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
 
 ADD ./*.pattern ${LOGSTASH_HOME}/patterns/
 
-ADD ./11-nginx.conf /etc/logstash/conf.d/11-nginx.conf
+ADD *.conf /etc/logstash/conf.d/
+

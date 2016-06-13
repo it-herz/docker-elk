@@ -383,8 +383,8 @@
 # it unless you need it is recommended (it is disabled by default).
 #
 #http.jsonp.enable: true
-http.cors.enabled: true
-http.cors.allow-origin: http://localhost:5601
+#http.cors.enabled: true
+#http.cors.allow-origin: http://localhost:5601
 
 #fix for rejected execution (queue capacity 1000) on org.elasticsearch.search.action.SearchServiceTransportAction
 #threadpool.search.type: cached
