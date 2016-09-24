@@ -18,5 +18,6 @@ ADD ./*.pattern ${LOGSTASH_HOME}/patterns/
 
 ADD *.conf /etc/logstash/conf.d/
 
-EXPOSE 5601 9200 9300 5000 5044 12201/udp 12201
+EXPOSE 5601 9200 9300 5000 5044 12201/udp
+
 
