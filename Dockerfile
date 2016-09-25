@@ -8,7 +8,8 @@ ENV DEBIAN_FRONTEND noninteractive
 #    apt-get clean && \
 #    echo 'Europe/Moscow' >/etc/timezone && dpkg-reconfigure tzdata
 
-RUN cd /etc/logstash && curl -O "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz" && gunzip GeoLiteCity.dat.gz
+RUN cd /etc/logstash && curl -O "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz" && gunzip GeoLiteCity.dat.gz && \
+    sed -i 's/0x78,0x../0x78,0x01/ig' /opt/logstash/vendor/bundle/jruby/1.9/gems/gelfd-0.2.0/lib/gelfd.rb
 
 ADD elasticsearch-template.json /etc/logstash/templates/elasticsearch-template.json
 
