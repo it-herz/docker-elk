@@ -32,13 +32,12 @@
         "@timestamp": { "type": "date" },
         "@version": { "type": "string", "index": "not_analyzed" },
         "geoip"  : {
-          "type": "object",
           "dynamic": true,
           "properties" : {
             "ip": { "type": "ip" },
             "location" : { "type" : "geo_point" },
-            "lat" : { "type" : "float" },
-            "lon" : { "type" : "float" }
+            "latitude" : { "type" : "float" },
+            "longitude" : { "type" : "float" }
           }
         }
       }
