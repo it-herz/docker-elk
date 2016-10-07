@@ -389,15 +389,15 @@
 #fix for rejected execution (queue capacity 1000) on org.elasticsearch.search.action.SearchServiceTransportAction
 #threadpool.search.type: cached
 threadpool.search.type: fixed
-threadpool.search.size: 100
-threadpool.search.queue_size: 2000
+threadpool.search.size: 200
+threadpool.search.queue_size: 3000
 
 index.refresh_interval: 30s
-index.number_of_replicas: 0
-indices.fielddata.cache.size: 40% 
-indices.cache.filter.size: 30%
-indeces.cache.filter.terms.size: 512m
-index.number_of_shards: 1
+index.number_of_replicas: 2
+indices.fielddata.cache.size: 20% 
+indices.cache.filter.size: 20%
+indeces.cache.filter.terms.size: 256m
+index.number_of_shards: 5
 index.term_index_interval: 256
 index.term_index_divisor: 5
 
