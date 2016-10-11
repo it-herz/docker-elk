@@ -393,12 +393,12 @@ threadpool.search.size: 200
 threadpool.search.queue_size: 3000
 
 index.refresh_interval: 30s
-index.number_of_replicas: 2
-indices.fielddata.cache.size: 20% 
+index.number_of_replicas: 1
+indices.fielddata.cache.size: 40% 
 indices.cache.filter.size: 20%
 indeces.cache.filter.terms.size: 256m
 index.number_of_shards: 5
 index.term_index_interval: 256
 index.term_index_divisor: 5
 
-bootstrap.mlockall: true
+bootstrap.mlockall: false
